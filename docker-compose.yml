@@ -1,0 +1,67 @@
+version: '3.1'
+services:
+  mariadb:
+    image: 'bitnami/mariadb:latest'
+    env_file: .env
+    volumes:
+      - 'mariadb_data:/bitnami'
+
+  redis:
+    image: 'bitnami/redis:latest'
+    env_file: .env
+    labels:
+      kompose.service.type: nodeport
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'redis_data:/bitnami/redis'
+
+  magento:
+    build:
+      context: .
+      dockerfile: Dockerfile.magento
+    # image: 'bitnami/magento:latest'
+    labels:
+      kompose.service.type: nodeport
+    env_file: .env
+    # environment:
+    #   - MAGENTO_EMAIL=user@example.com
+    #   - MAGENTO_FIRSTNAME=FirstName
+    #   - MAGENTO_HOST=127.0.0.1
+    #   - MAGENTO_LASTNAME=LastName
+    #   - MAGENTO_MODE=production
+    #   - MAGENTO_PASSWORD=bitnami1
+    #   - MAGENTO_USERNAME=user
+    #   - MARIADB_HOST=mariadb
+    #   - MARIADB_PORT_NUMBER=3306
+    #   - MAGENTO_DATABASE_USER=bn_magento
+    #   - MAGENTO_DATABASE_PASSWORD=magento_db_password
+    #   - MAGENTO_DATABASE_NAME=bitnami_magento
+    # external_links:
+    #   - letsencrypt
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - 'magento_data:/bitnami'
+      - './Gbitweb/:/opt/bitnami/magento/htdocs/app/design/frontend/Gbitweb'
+    depends_on:
+      - mariadb
+      - redis
+
+  adminer:
+    image: adminer
+    env_file: .env
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - mariadb
+
+volumes:
+  mariadb_data:
+    driver: local
+  redis_data:
+    driver: local
+  magento_data:
+    driver: local

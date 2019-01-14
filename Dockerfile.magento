@@ -1,0 +1,12 @@
+FROM bitnami/magento:latest
+LABEL maintainer "Gigabit Services LTD <containers@gbitweb.pl>"
+
+RUN chown bitnami:daemon /opt/bitnami/magento/htdocs/var \
+    && chmod +x /opt/bitnami/magento/htdocs/bin/magento 
+
+WORKDIR /opt/bitnami/magento/htdocs
+
+EXPOSE 80 443
+
+ENTRYPOINT [ "/app-entrypoint.sh" ]
+CMD [ "httpd", "-f", "/bitnami/apache/conf/httpd.conf", "-DFOREGROUND" ]
